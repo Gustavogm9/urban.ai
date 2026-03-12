@@ -3,7 +3,7 @@
  * Orquestra a lógica de Isócronas, KNN e Matriz de Custo para sugerir preços.
  */
 
-const TravelTimeEngine = require('./travel-engine-mapbox');
+const TravelTimeEngine = require('./isochrone');
 const PropertyClassifier = require('./knn-classifier');
 const DisplacementCostMatrix = require('./cost-matrix');
 
@@ -24,7 +24,7 @@ class UrbanAIPricingEngine {
     /**
      * Lógica Principal: Sugere um preço para um imóvel em um dia de evento.
      */
-    async async suggestPrice(property, event, basePrice) {
+    async suggestPrice(property, event, basePrice) {
         // 1. Classificação KNN (Perfil do Imóvel)
         const classification = this.classifier.classify(property);
         

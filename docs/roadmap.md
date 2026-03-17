@@ -1,6 +1,6 @@
 # Urban AI — Roadmap de Transição e Operação
 **Versão 2.0 · Março 2026 · Sprint de 14 Dias + Fase de Crescimento**
-D1 = 03/03/2026 · Hoje = Dia 9 (11/03/2026)
+D1 = 03/03/2026 · Hoje = Dia 8 (12/03/2026)
 
 > **Meta principal:** Sistema rodando em infraestrutura própria (Railway + Supabase/MySQL), com todos os acessos transferidos e o produto estável — em 14 dias corridos.
 
@@ -50,10 +50,13 @@ D1 = 03/03/2026 · Hoje = Dia 9 (11/03/2026)
 | ✅ | Deploy do Pipeline (Python/Prefect) na nova infra | D3–5 |
 | ✅ | Deploy do Webscraping (Python/Scrapy) na nova infra | D3–5 |
 | ✅ | Configurar CI/CD: deploy automático via git push (Railway) | D5–6 |
-| ⬜ | Configurar alertas de billing na plataforma cloud 💰 | D2 |
-| ⬜ | Solicitar dump do banco de dados (on-premise → nova infra) | D2–3 |
-| ⬜ | Importar banco de dados para o MySQL da nova infra | D4–5 |
-| ⬜ | Teste completo do sistema na nova infra antes de mudar DNS | D6–7 |
+| ✅ | Configurar alertas de billing na plataforma cloud 💰 | D8 |
+| ✅ | Configurar backup automático MySQL — Railway Pro Plan ativo | D8 |
+| ✅ | Criar bucket S3 (urbanai-data-lake, sa-east-1) + IAM user urban-ai-scrapy | D8 |
+| ✅ | Google Cloud Platform: Maps API + OAuth 2.0 + R$1.759 crédito gratuito | D8 |
+| ⬜ | Solicitar dump do banco de dados (on-premise → nova infra) | D8–9 |
+| ⬜ | Importar banco de dados para o MySQL da nova infra | D9–10 |
+| ⬜ | Teste completo do sistema na nova infra antes de mudar DNS | D9–10 |
 
 ---
 
@@ -64,18 +67,20 @@ D1 = 03/03/2026 · Hoje = Dia 9 (11/03/2026)
 
 | Status | Tarefa | Quando | Resp. |
 |--------|--------|--------|-------|
-| ⬜ | Obter acesso SSH ao servidor on-premise | D1 | Gustavo |
-| ⬜ | Solicitar transferência do domínio urbanai.com.br com Lumina Lab | D1 | Gustavo |
-| 🔄 | Criar conta Google corporativa (admin@urbanai.com.br) | D1 | Gustavo |
-| 🔄 | Criar novo projeto Google Cloud: configurar OAuth 2.0 e Maps API | D1–2 | Gustavo |
+| ⬜ | Obter acesso SSH ao servidor on-premise | D8–9 | Gustavo+Lumina |
+| ⬜ | Solicitar transferência do domínio urbanai.com.br com Lumina Lab | D8–9 | Gustavo+Lumina |
+| ✅ | Criar conta Google corporativa (urbanai.admin@gmail.com) | D8 | Gustavo |
+| ✅ | Criar novo projeto Google Cloud: configurar OAuth 2.0 e Maps API | D8 | Gustavo |
 | ✅ | Criar conta Mailersend Urban AI + configurar registros SPF e DKIM | D1–2 | Gustavo |
 | ✅ | Iniciar nova conta Stripe em nome da Urban AI | D1 | Gustavo |
-| ⬜ | Transferir domínio urbanai.com.br (Hostinger → conta Urban AI) | D2–3 | Gustavo+Lumina |
-| ⬜ | Migrar credenciais RapidAPI (conta pessoal Fabrício → conta Urban AI) | D3–5 | Gustavo+Fabrício |
-| ⬜ | Atualizar TODAS as variáveis de ambiente com as novas chaves | D7–8 | Gustavo |
-| ⬜ | Redirecionar DNS para nova infraestrutura cloud (após testes F2) | D8–9 | Gustavo |
-| ⬜ | Verificar certificado SSL após mudança de DNS | D9 | Gustavo |
-| ⬜ | Revogar todos os acessos da Lumina Lab e rotacionar credenciais | D10 | Gustavo |
+| ✅ | Criar conta RapidAPI Urban AI + configurar chave própria | D8 | Gustavo |
+| ✅ | Atualizar TODAS as variáveis de ambiente com as novas chaves | D8 | Gustavo |
+| ✅ | Configurar Sentry (backend NestJS + frontend Next.js) | D8 | Gustavo |
+| ✅ | Configurar DNS myurbanai.com — app.myurbanai.com apontando para Railway | D8 | Gustavo |
+| ⬜ | Transferir domínio urbanai.com.br (Lumina vai fazer apontamento temporário) | D9–11 | Gustavo+Lumina |
+| ⬜ | Redirecionar DNS urbanai.com.br para nova infraestrutura cloud | D9–11 | Gustavo |
+| ⬜ | Verificar certificado SSL após mudança de DNS | D11 | Gustavo |
+| ⬜ | Revogar todos os acessos da Lumina Lab e rotacionar credenciais | D12–13 | Gustavo |
 
 ---
 
@@ -100,19 +105,19 @@ D1 = 03/03/2026 · Hoje = Dia 9 (11/03/2026)
 
 | Status | Tarefa | Quando |
 |--------|--------|--------|
-| ⬜ | Localizar e remover o FastAPI depreciado do codebase | D8–10 |
-| ⬜ | Identificar e desativar o endpoint RapidAPI depreciado | D8 |
-| ⬜ | Revisar e limpar variáveis de ambiente desnecessárias | D8 |
+| ✅ | FastAPI depreciado — não encontrado no codebase, já removido | D8 |
+| ✅ | Identificar e substituir chave RapidAPI depreciada (Fabrício) por conta Urban AI | D8 |
+| ✅ | Revisar e limpar variáveis de ambiente (HERE Maps removido, chaves antigas trocadas) | D8 |
 
 ### 4.3 Segurança
 
 | Status | Tarefa | Quando |
 |--------|--------|--------|
 | ✅ | HTTPS obrigatório (Railway force HTTPS automático) | D5 |
-| ⬜ | Configurar firewall na nova infra: bloquear portas desnecessárias | D5–6 |
-| ⬜ | Configurar backup automático do banco de dados (retenção mínima 7 dias) | D6–7 |
-| ⬜ | Configurar monitoramento de uptime — UptimeRobot (gratuito) | D7 |
-| ⬜ | Configurar Sentry para captura de erros em produção | D9–10 |
+| ✅ | Configurar firewall na nova infra: portas internas bloqueadas (Railway Networking) | D8 |
+| ✅ | Configurar backup automático do banco de dados (Railway Pro — retenção 7 dias) | D8 |
+| ✅ | Configurar monitoramento de uptime — UptimeRobot | D8 |
+| ✅ | Configurar Sentry para captura de erros em produção | D8 |
 | ⬜ | Revisar permissões do banco de dados (usuário com mínimo de privilégios) | D10 |
 
 ---
@@ -217,4 +222,4 @@ D1 = 03/03/2026 · Hoje = Dia 9 (11/03/2026)
 
 ---
 
-*Urban AI © 2026 · Uso interno · Atualizado em 11/03/2026 (Dia 9)*
+*Urban AI © 2026 · Uso interno · Atualizado em 12/03/2026 (Dia 8)*

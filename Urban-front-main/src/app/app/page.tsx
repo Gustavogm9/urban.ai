@@ -1,19 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Flex, VStack, Box, Heading, Text, Input,
   FormControl, FormLabel, Switch, Stack,
-  Button, Spinner
+  Button, Image, Container
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import '../../../i18n';
-import { getHostId, getUserManagedListings, registerProperties, registerAddresses, createMultipleAddresses, resolveAirbnbUrl } from '../service/api';
+import { getHostId, getUserManagedListings, registerProperties, createMultipleAddresses, resolveAirbnbUrl } from '../service/api';
 import { ToastContainer, toast } from 'react-toastify';
-import ReactPlayer from "react-player";
-import { QuestionIcon, CloseIcon } from '@chakra-ui/icons';
 
 const MotionBox = motion(Box);
 
@@ -39,20 +37,17 @@ interface SelectedPropertiesState {
 }
 
 export default function ConectarAirbnb() {
-  const { t, ready } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
+
+  // State para os passos do Onboarding: 1 = Bem-vindo, 2 = Inserção Link, 3 = Seleção, 4 = Finalizando
+  const [step, setStep] = useState(1);
 
   const [airbnbLink, setAirbnbLink] = useState('');
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProperties, setSelectedProperties] = useState<SelectedPropertiesState>({});
   const [selectAll, setSelectAll] = useState(false);
-  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
-
-  useEffect(() => {
-    console.log(t('not_member'), ready);
-  }, [ready, t]);
 
   const extractAirbnbUserId = (link: string): string | null => {
     if (!link || !link.includes('airbnb.com')) return null;
@@ -91,13 +86,19 @@ export default function ConectarAirbnb() {
   const initializeSelectedProperties = (list: Property[]) => {
     const initialSelectedState: SelectedPropertiesState = {};
     list.forEach(prop => {
-      initialSelectedState[prop.id_do_anuncio] = prop.ativo;
+      initialSelectedState[prop.id_do_anuncio] = true; // Por padrão, sugerimos registrar tudo
+      prop.ativo = true;
     });
     setSelectedProperties(initialSelectedState);
-    setSelectAll(list.length > 0 && list.every(p => p.ativo));
+    setSelectAll(list.length > 0);
   };
 
   const fetchUserProperties = async () => {
+    if (!airbnbLink) {
+      toast("Para continuar, insira um link do Airbnb.", { type: "info" });
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const result = await resolveAirbnbUrl(airbnbLink);
@@ -121,26 +122,34 @@ export default function ConectarAirbnb() {
       let userId = userIdFromGetHostId || extractAirbnbUserId(urlEditor ? urlEditor : result.finalUrl);
 
       if (!userId) {
-        toast("Por favor, insira um link válido do perfil do Airbnb.", { type: "error" });
+        toast("Por favor, insira um link válido do perfil ou imóvel do Airbnb.", { type: "error" });
         setIsLoading(false);
         return;
       }
 
       const listings = await getUserManagedListings(userId);
 
+      if (!listings || listings.length === 0) {
+        toast("Não encontramos imóveis neste perfil.", { type: "warning" });
+        setIsLoading(false);
+        return;
+      }
+
       const mappedProperties: Property[] = listings.map((item: any) => ({
         id: item.id || 0,
         titulo: item.titulo ?? item.name ?? 'Sem título',
         id_do_anuncio: item.id_do_anuncio ?? '',
-        ativo: false,
+        ativo: true,
         pictureUrl: item.pictureUrl ?? '',
       }));
 
       setProperties(mappedProperties);
       initializeSelectedProperties(mappedProperties);
+      setStep(3); // Avança pra tela de seleção de properties
+
     } catch (error) {
       console.error('Erro ao buscar imóveis:', error);
-      toast("Não foi possível buscar seus imóveis. Tente novamente mais tarde.", { type: "error" });
+      toast("Não foi possível buscar seus imóveis. Verifique o link e tente novamente.", { type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +180,7 @@ export default function ConectarAirbnb() {
     );
 
     if (selectedPropertiesList.length === 0) {
-      toast("Por favor, selecione pelo menos uma propriedade.", { type: "error" });
+      toast("Por favor, selecione pelo menos uma propriedade.", { type: "warning" });
       return;
     }
 
@@ -196,226 +205,311 @@ export default function ConectarAirbnb() {
       }
 
       // Passo 2: Cria endereços usando endpoint correto
-      // Valida estado para ter máximo 2 caracteres (UF)
       const addressesToRegister = registered.map((prop: any) => {
         const estado = 'A definir';
         return {
-          cep: '00000-000', // CEP padrão (sem validação)
-          numero: 'S/N', // Sem número
+          cep: '00000-000', 
+          numero: 'S/N',
           logradouro: 'A definir',
           bairro: 'A definir',
           cidade: 'A definir',
-          estado: estado.length > 2 ? estado.substring(0, 2) : null, // ✅ Trunca para 2 ou null
+          estado: estado.length > 2 ? estado.substring(0, 2) : null,
           list: { 
-            id: prop.id_do_anuncio // ✅ Usa id_do_anuncio conforme guia
+            id: prop.id_do_anuncio
           },
         };
       });
 
       await createMultipleAddresses(addressesToRegister);
       
-      toast("Propriedades registradas com sucesso!", { type: "success" });
+      setStep(4); // Vai pra etapa de tela verde / loading
+      toast("Processo concluído com sucesso!", { type: "success" });
 
       // Redireciona direto para dashboard
       setTimeout(() => {
         router.push('/dashboard');
-      }, 2000);
+      }, 2500);
+
     } catch (error) {
       console.error('Erro ao registrar propriedades:', error);
-      toast("Falha ao registrar propriedades. Tente novamente.", { type: "error" });
-    } finally {
+      toast("Falha ao configurar propriedades. Tente novamente.", { type: "error" });
       setIsLoading(false);
     }
   };
 
+  // Variações de animação
+  const pageVariants = {
+    initial: { opacity: 0, x: 20 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -20 }
+  };
+
   return (
-    <Flex w="100%" minH="90vh" align="center" justify="center" bg="gray.100" p={{ base: 4, md: 8 }}>
-      <MotionBox
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        w={{ base: '100%', md: '70%' }}
-        maxW="container.lg"
-        bg="white"
-        borderRadius="2xl"
-        p={{ base: 6, md: 12 }}
-      >
-        <VStack spacing={8} align="stretch">
-          <Box textAlign="center">
-            <Heading size="lg" mb={3}>Connect seu Perfil</Heading>
-          </Box>
+    <Flex w="100%" minH="100vh" direction="column" bg="gray.50" align="center" p={{ base: 4, md: 8 }}>
+      {/* Mini Topbar com Logo para contexto */}
+      <Flex w="100%" justify="center" py={6} mb={4}>
+        <Image src="/ul.png" alt="Urban AI Logo" height="auto" width="160px" />
+      </Flex>
 
-          {/* Botão e área do tutorial */}
-          <Box textAlign="center" mb={6}>
-            <Button
-              leftIcon={showTutorial ? <CloseIcon boxSize={3} /> : <QuestionIcon boxSize={4} />}
-              variant="solid"
-              colorScheme={showTutorial ? "red" : "blue"}
-              onClick={() => setShowTutorial(!showTutorial)}
-              size="sm"
-              borderRadius="full"
-              px={5}
-              py={2}
-              boxShadow="sm"
-            >
-              {showTutorial ? 'Fechar ajuda' : 'Preciso de ajuda'}
-            </Button>
-
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={showTutorial ? { opacity: 1, height: 'auto' } : { opacity: 0, height: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ overflow: 'hidden' }}
-            >
-              {showTutorial && (
-                <Box mt={4}>
-                  <Box
-                    position="relative"
-                    borderRadius="xl"
-                    overflow="hidden"
-                    boxShadow="md"
-                    bg="black"
-                    pt="56.25%"
-                  >
-                    {!isIframeLoaded && (
-                      <Flex
-                        position="absolute"
-                        inset={0}
-                        bg="blackAlpha.700"
-                        alignItems="center"
-                        justifyContent="center"
-                        zIndex={1}
-                      >
-                        <Spinner size="xl" color="white" />
-                      </Flex>
-                    )}
-
-                    <Box
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      width="100%"
-                      height="100%"
-                    >
-                      <div className="relative w-full aspect-video bg-black overflow-hidden md:rounded-lg">
-                        <ReactPlayer
-                          src={"https://vimeo.com/1126884738"}
-                          width="100%"
-                          height="100%"
-                          controls
-                          playing={showTutorial}
-                          onReady={() => setIsIframeLoaded(true)}
-                          style={{ position: "absolute", top: 0, left: 0, objectFit: "contain" }}
-                        />
-                      </div>
-                    </Box>
-                  </Box>
-                  <Text fontSize="sm" mt={2} color="gray.500">
-                    {t('tutorial_description', 'Assista a este breve tutorial para aprender como usar o AI-Urban')}
-                  </Text>
-                </Box>
-              )}
-            </motion.div>
-          </Box>
-
-          {/* Campo de link do Airbnb */}
-          <FormControl>
-            <FormLabel fontSize="md" fontWeight="medium">
-              {t('airbnb_profile_link', 'Link do Perfil do Airbnb ou Link do anúncio')}
-            </FormLabel>
-            <Input
-              size="lg"
-              type="text"
-              placeholder="https://www.airbnb.com.br/users/show/123456789"
-              value={airbnbLink}
-              onChange={(e) => setAirbnbLink(e.target.value)}
-              focusBorderColor="blue.500"
-            />
-            <Text fontSize="xs" mt={1} color="gray.500">
-              {t('airbnb_profile_link_example', 'Exemplo: {{example}}', { example: 'https://www.airbnb.com.br/users/show/155326952 ou https://www.airbnb.com.br/rooms/645183585737605838?' })}
-            </Text>
-          </FormControl>
-
-          <Button
-            bg="#2E3748"
-            color="white"
-            _hover={{ bg: '#252E3E' }}
-            _active={{ bg: '#1B2330' }}
-            size="lg"
-            isLoading={isLoading}
-            loadingText={t('searching_properties', 'Buscando...')}
-            onClick={fetchUserProperties}
-          >
-            Buscar propriedades
-          </Button>
-
-          {properties.length > 0 && (
-            <Box>
-              <Text fontSize="md" mb={4} fontWeight="semibold">
-                {'Encontramos suas propriedades, por favor selecione as que deseja registrar'}
-              </Text>
-
-              <FormControl
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                bg="gray.50"
-                p={3}
-                borderRadius="md"
-                mb={3}
+      <Container maxW="container.md">
+        <MotionBox
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          bg="white"
+          borderRadius="2xl"
+          boxShadow="lg"
+          p={{ base: 6, md: 12 }}
+          overflow="hidden"
+        >
+          <AnimatePresence mode="wait">
+            
+            {/* --- PASSO 1: Boas Vindas --- */}
+            {step === 1 && (
+              <MotionBox
+                key="step1"
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={{ duration: 0.4 }}
               >
-                <FormLabel mb="0" fontWeight="semibold">
-                  {t('select_all_listings', 'Selecionar todos os anúncios')}
-                </FormLabel>
-                <Switch
-                  colorScheme="blue"
-                  isChecked={selectAll}
-                  onChange={handleSelectAllToggle}
-                />
-              </FormControl>
-
-              <Stack spacing={3} maxH="400px" overflowY="auto" pr={2}>
-                {properties.map((property) => (
-                  <FormControl
-                    key={property.id_do_anuncio}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    bg="white"
-                    p={3}
-                    borderRadius="md"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    _hover={{ borderColor: 'blue.400' }}
+                <VStack spacing={6} align="center" textAlign="center">
+                  <Box p={4} bg="blue.50" borderRadius="full">
+                    <Image src="/ularanja.png" w="40px" h="40px" alt="Icone Urban AI"/>
+                  </Box>
+                  <Heading size="xl" color="gray.800">
+                    Bem-vindo ao Urban AI!
+                  </Heading>
+                  <Text fontSize="lg" color="gray.600" maxW="400px">
+                    Para começarmos a multiplicar a receita e automatizar seu trabalho, precisamos conectar sua conta do Airbnb para escanearmos sua área e seu mercado local.
+                  </Text>
+                  
+                  <Button
+                    mt={4}
+                    bg="#ff5a5f" // Cor remetendo muito levemente a hospitalidade, ou use seu laranja primário
+                    color="white"
+                    size="lg"
+                    px={10}
+                    h="56px"
+                    fontSize="lg"
+                    _hover={{ bg: '#e0484d', transform: 'translateY(-2px)' }}
+                    _active={{ bg: '#d43b40' }}
+                    transition="all 0.2s"
+                    onClick={() => setStep(2)}
                   >
-                    <FormLabel mb="0" fontWeight="medium">{property.titulo}</FormLabel>
-                    <Switch
-                      colorScheme="blue"
-                      isChecked={selectedProperties[property.id_do_anuncio] || false}
-                      onChange={() => handlePropertyToggle(property.id_do_anuncio)}
+                    Começar configuração rápida
+                  </Button>
+                </VStack>
+              </MotionBox>
+            )}
+
+            {/* --- PASSO 2: Inserção do Link --- */}
+            {step === 2 && (
+              <MotionBox
+                key="step2"
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={{ duration: 0.4 }}
+              >
+                <VStack spacing={8} align="stretch">
+                  <Box textAlign="center">
+                    <Text fontSize="sm" color="gray.400" fontWeight="bold" textTransform="uppercase" letterSpacing="widest" mb={2}>Passo 1 de 2</Text>
+                    <Heading size="lg" mb={3} color="gray.800">Identificando seu Perfil</Heading>
+                    <Text color="gray.600">
+                      O processo é totalmente seguro. Não precisamos de sua senha, apenas da URL pública do seu perfil ou anúncio.
+                    </Text>
+                  </Box>
+
+                  <FormControl>
+                    <FormLabel fontSize="md" fontWeight="semibold" color="gray.700">
+                      {t('airbnb_profile_link', 'Link do Perfil do Airbnb ou Link de um Anúncio')}
+                    </FormLabel>
+                    <Input
+                      size="lg"
+                      type="url"
+                      placeholder="Ex: https://www.airbnb.com.br/users/show/123456789"
+                      value={airbnbLink}
+                      onChange={(e) => setAirbnbLink(e.target.value)}
+                      focusBorderColor="blue.500"
+                      bg="gray.50"
+                      border="2px solid"
+                      borderColor="gray.200"
+                      _hover={{ borderColor: "gray.300" }}
+                      h="60px"
                     />
                   </FormControl>
-                ))}
-              </Stack>
-            </Box>
-          )}
 
-          <Button
-            bg="#2E3748"
-            color="white"
-            _hover={{ bg: '#252E3E' }}
-            _active={{ bg: '#1B2330' }}
-            size="lg"
-            onClick={handleRegisterProperties}
-            isDisabled={properties.length === 0 || Object.values(selectedProperties).every(val => val === false)}
-            isLoading={isLoading}
-            loadingText="Registrando e direcionando..."
-          >
-            {t('register_properties', 'Registrar propriedades')}
-          </Button>
-        </VStack>
-      </MotionBox>
-      <ToastContainer />
+                  <Flex gap={4}>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => setStep(1)}
+                      color="gray.500"
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      bg="#2E3748"
+                      color="white"
+                      _hover={{ bg: '#252E3E' }}
+                      _active={{ bg: '#1B2330' }}
+                      size="lg"
+                      flex={1}
+                      isLoading={isLoading}
+                      loadingText={t('searching_properties', 'Pesquisando imóveis...')}
+                      onClick={fetchUserProperties}
+                    >
+                      Buscar minhas propriedades
+                    </Button>
+                  </Flex>
+
+                </VStack>
+              </MotionBox>
+            )}
+
+            {/* --- PASSO 3: Seleção das Propriedades --- */}
+            {step === 3 && (
+              <MotionBox
+                key="step3"
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={{ duration: 0.4 }}
+              >
+                <VStack spacing={6} align="stretch">
+                  <Box textAlign="center">
+                    <Text fontSize="sm" color="gray.400" fontWeight="bold" textTransform="uppercase" letterSpacing="widest" mb={2}>Passo 2 de 2</Text>
+                    <Heading size="lg" mb={2} color="gray.800">Selecionar Imóveis</Heading>
+                    <Text color="gray.600">
+                      Encontramos {properties.length} {properties.length === 1 ? 'imóvel' : 'imóveis'} em seu perfil. Quais deseja vincular ao motor inteligente?
+                    </Text>
+                  </Box>
+
+                  <Box p={4} bg="gray.50" borderRadius="lg" border="1px solid" borderColor="gray.200">
+                    <FormControl
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={4}
+                      pb={4}
+                      borderBottom="1px solid"
+                      borderColor="gray.300"
+                    >
+                      <FormLabel mb="0" fontWeight="bold" color="gray.800">
+                        {t('select_all_listings', 'Ativar motor para todos')}
+                      </FormLabel>
+                      <Switch
+                        colorScheme="green"
+                        size="lg"
+                        isChecked={selectAll}
+                        onChange={handleSelectAllToggle}
+                      />
+                    </FormControl>
+
+                    <Stack spacing={3} maxH="300px" overflowY="auto" pr={2}>
+                      {properties.map((property) => (
+                        <FormControl
+                          key={property.id_do_anuncio}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          bg="white"
+                          p={3}
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor={selectedProperties[property.id_do_anuncio] ? 'blue.200' : 'gray.200'}
+                          boxShadow="sm"
+                          transition="all 0.2s"
+                        >
+                          <Flex align="center" gap={3}>
+                            {property.pictureUrl ? (
+                              <Image 
+                                src={property.pictureUrl} 
+                                alt={property.titulo} 
+                                boxSize="40px" 
+                                objectFit="cover" 
+                                borderRadius="md" 
+                              />
+                            ) : (
+                              <Box boxSize="40px" bg="gray.200" borderRadius="md" />
+                            )}
+                            <FormLabel mb="0" fontWeight="medium" color="gray.700" noOfLines={1} maxW="250px">
+                              {property.titulo}
+                            </FormLabel>
+                          </Flex>
+                          <Switch
+                            colorScheme="blue"
+                            isChecked={selectedProperties[property.id_do_anuncio] || false}
+                            onChange={() => handlePropertyToggle(property.id_do_anuncio)}
+                          />
+                        </FormControl>
+                      ))}
+                    </Stack>
+                  </Box>
+
+                  <Flex gap={4} mt={2}>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => setStep(2)}
+                      color="gray.500"
+                      isDisabled={isLoading}
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      size="lg"
+                      flex={1}
+                      onClick={handleRegisterProperties}
+                      isDisabled={properties.length === 0 || Object.values(selectedProperties).every(val => val === false)}
+                      isLoading={isLoading}
+                      loadingText="Salvando no sistema..."
+                    >
+                      Finalizar configuração
+                    </Button>
+                  </Flex>
+                </VStack>
+              </MotionBox>
+            )}
+
+            {/* --- PASSO 4: Sucesso --- */}
+            {step === 4 && (
+              <MotionBox
+                key="step4"
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={{ duration: 0.4 }}
+              >
+                <VStack spacing={6} align="center" textAlign="center" py={10}>
+                  <Box p={6} bg="green.50" borderRadius="full" color="green.500">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </Box>
+                  <Heading size="lg" color="gray.800">
+                    Você está pronto!
+                  </Heading>
+                  <Text fontSize="md" color="gray.600" maxW="400px">
+                    Os dados foram importados com sucesso. Estamos direcionando você para o seu novo painel operacional, onde faremos as leituras do mercado que envolve seus imóveis.
+                  </Text>
+                  <Spinner color="blue.500" size="lg" mt={4} />
+                </VStack>
+              </MotionBox>
+            )}
+
+          </AnimatePresence>
+        </MotionBox>
+      </Container>
+      
+      <ToastContainer position="top-right" />
     </Flex>
   );
 }

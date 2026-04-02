@@ -4,7 +4,6 @@ import React from 'react'
 import Footer from '../componentes/Footer'
 import Header from '../componentes/header'
 import SideBar from '../componentes/SideBar'
-import PaymentCheckGuard from '../context/PaymentCheckGuard'
 
 export default function InternoLayout({ children }: { children: React.ReactNode }) {
 
@@ -18,9 +17,7 @@ export default function InternoLayout({ children }: { children: React.ReactNode 
       <Flex direction="column" flex="1">
         <Header />
         <Box as="main" p="0" flex="1">
-     <PaymentCheckGuard>
           {children}
-          </PaymentCheckGuard>
         </Box>
         <Footer />
       </Flex>

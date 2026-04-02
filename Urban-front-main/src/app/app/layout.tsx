@@ -1,26 +1,13 @@
 "use client"
 import { Box, Flex } from '@chakra-ui/react'
 import React from 'react'
-import Footer from '../componentes/Footer'
-import Header from '../componentes/header'
-import SideBar from '../componentes/SideBar'
 
-export default function InternoLayout({ children }: { children: React.ReactNode }) {
-
-
+export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Flex minH="100vh" bg="#f8fafb">
-      {/* Sidebar */}
-      <SideBar />
-
-      {/* Conteúdo principal */}
-      <Flex direction="column" flex="1">
-        <Header />
-        <Box as="main" p="0" flex="1">
-          {children}
-        </Box>
-        <Footer />
-      </Flex>
+    <Flex minH="100vh" bg="#f8fafb" direction="column">
+      <Box as="main" flex="1">
+        {children}
+      </Box>
     </Flex>
   )
 }

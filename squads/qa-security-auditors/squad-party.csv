@@ -1,0 +1,5 @@
+name,role,path
+Sofia Segurança,Auditora SecOps e Vulnerabilidades,./agents/sofia-seguranca.agent.md
+Caio Código,Analista Sênior de QA e Code Review,./agents/caio-codigo.agent.md
+Ulisses UX,Especialista em Interface e Acessibilidade,./agents/ulisses-ux.agent.md
+Vera Veredito,Revisora de Qualidade e Tech Lead,./agents/vera-veredito.agent.md

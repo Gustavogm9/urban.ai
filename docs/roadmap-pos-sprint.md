@@ -1,5 +1,5 @@
 # Urban AI — Roadmap Pós-Sprint
-**Versão 1.0 · Início: 21/03/2026 · Base: Sprint de migração encerrado em D14 (20/03/2026)**
+**Versão 2.0 · Atualizado: 13/04/2026 · Base: Sprint de migração encerrado em D14 (20/03/2026)**
 
 > O sprint de 14 dias úteis foi concluído com 53 entregas. O sistema está 100% operacional sob controle Urban AI. Este documento cobre o que vem a seguir — pendências em aberto, crescimento e go-live oficial.
 
@@ -41,7 +41,7 @@
 | ⬜ | Corrigir mensagens de erro genéricas — substituir por mensagens claras e acionáveis | S1–2 | Gustavo / Dev |
 | ⬜ | Revisar estados dos botões: loading, disabled, sucesso e erro em todos os CTAs | S1–2 | Gustavo / Dev |
 | ⬜ | Corrigir fluxo de confirmação de e-mail — garantir que link chega e redireciona corretamente | S1–2 | Gustavo / Dev |
-| ⬜ | Revisar fluxo de recuperação de senha de ponta a ponta (UI + e-mail + redirect) | S2 | Gustavo / Dev |
+| ✅ | Revisar fluxo de recuperação de senha e Paywall Global Popup (UI + UX) | S2 | Gustavo / Dev |
 | ⬜ | Testar login com Google OAuth — cobrir edge cases (conta já existente, e-mail diferente) | S2 | Gustavo / Dev |
 
 ### 5A.2 Onboarding — Criação do Fluxo (não existia)
@@ -49,7 +49,7 @@
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
 | ⬜ | Definir jornada do onboarding: quais etapas, em que ordem, o que é obrigatório vs. opcional | S1 | Gustavo |
-| ⬜ | Criar tela de boas-vindas pós-cadastro com próximos passos claros | S2 | Gustavo / Dev |
+| ✅ | Criar nova rota de usuários (/profile/) e boas-vindas pós-cadastro com próximos passos | S2 | Gustavo / Dev |
 | ⬜ | Implementar checklist de setup do perfil (foto, nome, primeiro imóvel) | S2–3 | Gustavo / Dev |
 | ⬜ | Criar tooltip/guia contextual na primeira visita ao dashboard | S3 | Gustavo / Dev |
 | ⬜ | Configurar sequência de e-mails de onboarding via Mailersend (D1, D3, D7) 💰 | S2–3 | Gustavo / Dev |
@@ -109,14 +109,14 @@
 
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
-| ⬜ | Definir proposta de valor e copy principal com Rogério | S1 (21–28/03) | Gustavo + Rogério |
-| ⬜ | Criar wireframe e estrutura de seções (hero, benefícios, preço, CTA, FAQ) | S1–2 | Gustavo |
-| ⬜ | Desenvolver design e layout da landing page 💰 | S2–3 (31/03–11/04) | Gustavo / Dev |
-| ⬜ | Publicar landing page em urbanai.com.br (após transferência do domínio) 💰 | S3–4 | Gustavo / Dev |
-| ⬜ | Criar página de preços com CTA direto de assinatura (Stripe) | S3–4 | Gustavo / Dev |
-| ⬜ | Configurar SEO básico: title, meta description, Open Graph, sitemap | S4 | Gustavo |
-| ⬜ | Configurar Google Analytics 4 + Microsoft Clarity + Meta Pixel | S4 | Gustavo |
-| ⬜ | Integrar formulário de pré-cadastro / lista de interesse | S3–4 | Gustavo / Dev |
+| ✅ | Definir proposta de valor e copy principal — narrativa "Síndrome da Casa Barata" + dossiê executivo | S1 (21–28/03) | Gustavo |
+| ✅ | Criar wireframe e estrutura de seções (hero, benefícios, preço, CTA, FAQ) | S1–2 | Gustavo |
+| ✅ | Desenvolver design e layout da landing page — Glassmorphism Premium (HTML) 💰 | S2–3 (31/03–11/04) | Gustavo / Dev |
+| ✅ | Criar página de preços com CTA direto de assinatura (Stripe) — 2 planos incluídos | S3–4 | Gustavo / Dev |
+| ✅ | Configurar SEO básico: title, meta description, Open Graph, JSON-LD, sitemap.xml, robots.txt | S4 | Gustavo |
+| 🔄 | Configurar Google Analytics 4 + Meta Pixel — placeholders prontos, aguarda IDs reais | S4 | Gustavo |
+| ⬜ | Publicar landing page em urbanai.com.br (aguarda transferência do domínio) 💰 | S4–5 | Gustavo / Dev |
+| ⬜ | Integrar formulário de pré-cadastro / lista de interesse | S4–5 | Gustavo / Dev |
 
 ### 5.2 Redes Sociais
 **Meta:** Construir presença orgânica antes do lançamento pago.
@@ -124,20 +124,47 @@
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
 | ⬜ | Criar conta Instagram @urbanai.oficial e LinkedIn Urban AI | S1 (21–28/03) | Gustavo |
-| ⬜ | Definir identidade visual para redes (paleta, template de post) | S1–2 | Gustavo |
-| ⬜ | Criar banco inicial: 12 posts sobre precificação Airbnb em SP 💰 | S2–4 | Gustavo |
-| ⬜ | Iniciar publicação regular (2–3x por semana) 💰 | S4+ | Gustavo |
+| ✅ | Definir identidade visual para redes — brand book com 6 templates (paleta, tipografia, dimensões) | S1–2 | Gustavo |
+| ✅ | Criar press release de lançamento e e-mail de lançamento (HTML, 3 subject lines A/B) | S2 | Gustavo |
+| 🔄 | Criar banco inicial: 4/12 posts criados — 3 carrosséis HTML + 1 post lançamento 💰 | S2–4 | Gustavo |
+| ⬜ | Completar banco: 8 posts restantes para atingir 12 publicações 💰 | S4–5 | Gustavo |
+| ⬜ | Iniciar publicação regular (2–3x por semana) 💰 | S5+ | Gustavo |
 
 ### 5.3 Tráfego Pago
 **Meta:** Adquirir primeiros usuários pagantes via mídia.
 
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
-| ⬜ | Aprovar orçamento mensal de mídia com Fabrício e Rogério 💰 | S1–2 | Gustavo + Sócios |
+| 🔴 | **Aprovar orçamento completo de recursos (ver 5.4 abaixo)** com Fabrício e Rogério 💰 | S4 | Gustavo + Sócios |
 | ⬜ | Configurar Google Ads: busca "precificar airbnb são paulo" 💰 | S5–6 | Gustavo |
 | ⬜ | Configurar Meta Ads: campanha para anfitriões Airbnb em SP 💰 | S5–6 | Gustavo |
 | ⬜ | Monitorar KPIs: CAC, CTR, conversão landing → cadastro | S6+ | Gustavo |
 | ⬜ | Otimizar campanhas semanalmente com base em dados 💰 | S8+ | Gustavo |
+
+---
+
+### 5.4 Aprovação de Recursos — Tabela de Investimentos em Marketing
+**Status: 🔴 Aguarda aprovação dos sócios — bloqueia F5.3 inteira**
+**Objetivo:** Formalizar os investimentos mensais em marketing antes do go-live. Valores baseados em pesquisa de mercado (abril 2026).
+
+> ⚠️ Nenhuma campanha paga ou contratação deve ser iniciada sem aprovação formal deste orçamento por Fabrício e Rogério.
+
+| Serviço | Fornecedor | Faixa Mensal | Prazo Aprovação | Status |
+|---------|-----------|-------------|-----------------|--------|
+| **Gestão de Tráfego Pago** (Google + Meta Ads) | Urban AI 💰 | R$ 1.500–R$ 2.500 | S4 | ⬜ Aguarda aprovação |
+| **Verba de Mídia** (investimento direto em anúncios) | Google / Meta | R$ 1.500–R$ 3.000 | S4 | ⬜ Aguarda aprovação |
+| **Design de Posts** (8–12 posts/mês, feed + stories) | Parceiro Urban AI 💰 | R$ 800–R$ 1.500 | S4 | ⬜ Aguarda aprovação |
+| **Produção de Vídeos/Reels com IA** | Urban AI + Ferramenta 💰 | R$ 500–R$ 1.000 | S4 | ⬜ Aguarda aprovação |
+| **Ferramenta IA Vídeo** (CapCut Pro ou HeyGen) | Assinatura | R$ 40–R$ 170 | S4 | ⬜ Aguarda aprovação |
+| **Total estimado** | | **R$ 4.340–R$ 8.170/mês** | | 🔴 Bloqueado |
+
+**Referências de mercado consultadas (abril 2026):**
+- Gestão de tráfego (freelancer intermediário a agência): R$ 1.500–R$ 8.000/mês — recomendado nível intermediário para fase inicial
+- Design social media (pacote 8–12 posts/mês): R$ 500–R$ 2.500/mês conforme experiência
+- CapCut Pro: ~R$ 40/mês | HeyGen Creator: US$29/mês (~R$ 165/mês)
+- Verba de mídia: iniciantes validam canais com R$ 1.500–R$ 3.000/mês antes de escalar
+
+> 💡 **Recomendação:** Para fase pré go-live, iniciar na faixa conservadora (R$ 4.340/mês). Escalar após validação de CAC e ROAS nas primeiras 4 semanas de campanha.
 
 ---
 
@@ -151,7 +178,7 @@
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
 | ⬜ | Expor endpoints REST no backend para resultados do KNN 💰 | S3–4 | Gustavo / Dev |
-| ⬜ | Integrar frontend: exibir sugestão de preço no dashboard do anfitrião 💰 | S4–6 | Gustavo / Dev |
+| ✅ | Implementado modo autônomo de precificação guiado por IA no frontend e backend 💰 | S4–6 | Gustavo / Dev |
 | ⬜ | Conectar dados reais de propriedades cadastradas ao treinamento do KNN 💰 | S5–7 | Gustavo / Dev |
 | ⬜ | Substituir dados mock por histórico real de preços e ocupação 💰 | S6–8 | Gustavo / Dev |
 | ⬜ | Agendar retreinamento semanal do KNN (pós-scraping de eventos) | S8–9 | Gustavo / Dev |

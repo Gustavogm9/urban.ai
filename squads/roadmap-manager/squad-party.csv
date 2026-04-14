@@ -1,0 +1,5 @@
+id,name,role,agent_file
+vitor-verificador,Vitor Verificador,Auditor de Código,vitor-verificador.agent.md
+ricardo-roadmap,Ricardo Roadmap,Gestor de Roadmap,ricardo-roadmap.agent.md
+daniela-documentacao,Daniela Documentação,Technical Writer,daniela-documentacao.agent.md
+rute-revisao,Rute Revisão,Analista de Qualidade e Revisora,rute-revisao.agent.md

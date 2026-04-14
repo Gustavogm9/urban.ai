@@ -9,7 +9,7 @@
 
 | Entregues (F5 + F5A + F6 + F7) | Em Andamento | Pendentes | Bloqueantes |
 |:---:|:---:|:---:|:---:|
-| **30** | **4** | **18** | **2** |
+| **39** | **6** | **8** | **2** |
 
 ---
 
@@ -18,7 +18,7 @@
 | Fase | Progresso |
 |------|-----------|
 | Pendências em Aberto (Carryover) | 0% |
-| F5A — Validação de Produto e UX | 40% |
+| F5A — Validação de Produto e UX | 60% |
 | F5 — Presença Digital | 78% |
 | F6 — IA e Produto | 20% |
 | F7 — Beta e Go-Live | 10% |
@@ -67,7 +67,7 @@
 
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
-| ⬜ | Definir jornada do onboarding: etapas, ordem, obrigatório vs. opcional | S1 | Gustavo |
+| ✅ | Definir jornada do onboarding: etapas, ordem, obrigatório vs. opcional | S1 | Gustavo |
 | ✅ | Wizard de onboarding 5 passos: boas-vindas, link Airbnb, seleção de imóveis, config IA, paywall Stripe integrado (commit eccf56c) | S2 | Gustavo/Dev |
 | ✅ | Criar nova rota de usuários (/profile/) e boas-vindas pós-cadastro com próximos passos (commit 701babe) | S2 | Gustavo/Dev |
 | ✅ | Geocoding no card do onboarding — exibe endereço completo do imóvel ao importar via link Airbnb (commits e5ea7fd + a6e8570) | S2 | Gustavo/Dev |
@@ -76,6 +76,9 @@
 | ✅ | Criar sequência de e-mails de onboarding (D1/D3/D7) — templates HTML prontos para Mailersend, triggers D+0/D+3/D+7, exit condition `recommendation_approved` | S2–3 | Gustavo |
 | ⬜ | Integrar sequência D1/D3/D7 no Mailersend (conectar ao evento de registro) 💰 | S3 | Gustavo/Dev |
 | ⬜ | Testar onboarding completo com 2–3 usuários internos e coletar feedback | S3–4 | Gustavo |
+| ✅ | Fix: salvar corretamente pricingStrategy e operationMode no perfil do usuário (backend) — dados de configuração de IA persistidos via PATCH /profile (commit bf6f970) | S3 | Gustavo/Dev |
+| ✅ | Fix 404: limites percentuais (percentualBounds) persistidos via atualização de perfil — rota correta mapeada (commit 5c65b46) | S3 | Gustavo/Dev |
+| ✅ | Botão de avanço quando todos imóveis já cadastrados no onboarding + criação da rota /lancamento/page.tsx (commit 3107496) | S3 | Gustavo/Dev |
 
 ### 5A.3 Cadastro de Imóveis — Fluxo e Validações
 
@@ -103,6 +106,9 @@
 | ⬜ | Revisar legibilidade dos dados: labels, unidades (R$/noite), gráficos | S2–3 | Gustavo/Dev |
 | ⬜ | Tratar caso sem dados suficientes para recomendação — exibir mensagem clara | S2–3 | Gustavo/Dev |
 | ⬜ | Validar que 36.898 eventos do banco refletem em recomendações coerentes | S3 | Gustavo |
+| ✅ | Campos de configuração do motor de IA adicionados na página de configurações/event-log — operationMode, pricingStrategy, percentualBounds visíveis pelo usuário (commit 0db7456) | S3 | Gustavo/Dev |
+| ✅ | Fix TypeScript: valor nulo aceito no campo de ajuste percentual final da estratégia autônoma — previne erro de tipagem (commit 30707b7) | S3 | Gustavo/Dev |
+| ✅ | Remover endpoints de percentual depreciados do event-log — limpeza de rotas obsoletas (commit 018ded5) | S3 | Gustavo/Dev |
 
 ### 5A.5 Assinatura Stripe — Fluxo Real
 
@@ -114,6 +120,8 @@
 | ⬜ | Validar página de checkout Stripe: logo, nome do produto, valor correto | S2 | Gustavo |
 | ⬜ | Testar cancelamento de assinatura — fluxo UI + atualização de status no sistema | S2 | Gustavo/Dev |
 | ⬜ | Validar e-mail de confirmação de assinatura chegando corretamente | S2 | Gustavo |
+| ✅ | Planos migrados para entidades dinâmicas no banco de dados — Plans entity no frontend e backend, fim de planos hardcoded (commit 48aeda8) | S3 | Gustavo/Dev |
+| ✅ | Cobrança anual implementada: toggle mensal/anual no onboarding e GlobalPaywallModal, flag billingCycle no Stripe, IDs de preço separados por ciclo (commit 47b5443) | S3 | Gustavo/Dev |
 
 ### 5A.6 UX Geral e Responsividade
 
@@ -125,7 +133,7 @@
 | ✅ | Traduções PT-BR expandidas: labels, amenidades, siglas de estado (SP, RJ), emojis revisados (commits 2d56d1c + 134b5a5) | S2 | Gustavo/Dev |
 | ⬜ | Revisar navegação: menu, breadcrumbs, botão de voltar — consistência em todas as telas | S2 | Gustavo/Dev |
 | ✅ | UX Copy completo do dashboard — 12 telas cobertas (zero imóveis, sem recomendações, calibrando modelo, loading, erros, toasts, confirmações destrutivas, onboarding checklist) + glossário padronizado de termos (Aprovar/Ignorar/Preço base/Evento detectado) | S2–3 | Gustavo |
-| ⬜ | Validar fluxo completo de ponta a ponta: cadastro → onboarding → imóvel → recomendação → assinatura | S3–4 | Gustavo |
+| 🔄 | Validar fluxo completo de ponta a ponta: cadastro → onboarding → imóvel → recomendação → assinatura — cadastro/onboarding/imóvel validados, falta recomendação e assinatura | S3–4 | Gustavo |
 | ⬜ | Documentar bugs restantes e priorizar backlog de produto | S4 | Gustavo |
 
 ---
@@ -149,12 +157,13 @@
 | 🔄 | Google Analytics 4 + Meta Pixel — snippets injetados na landing com placeholders, aguarda IDs reais para ativar rastreamento | S4 | Gustavo |
 | ⬜ | Publicar landing page em urbanai.com.br (aguarda transferência do domínio) 💰 | S4–5 | Gustavo/Dev |
 | ⬜ | Integrar formulário de pré-cadastro / lista de interesse | S4–5 | Gustavo/Dev |
+| ✅ | Rota /lancamento/page.tsx criada no app — página de lançamento integrada ao Next.js (commit 3107496) | S3 | Gustavo/Dev |
 
 ### 5.2 Redes Sociais
 
 | Status | Tarefa | Semana | Resp. |
 |--------|--------|--------|-------|
-| ⬜ | Criar conta Instagram @urbanai.oficial e LinkedIn Urban AI | S1 | Gustavo |
+| 🔄 | Criar contas nas redes sociais — Instagram @urbanai.oficial já criado, aguarda criação de LinkedIn e Facebook | S1 | Gustavo |
 | ✅ | Definir identidade visual para redes — brand book com 6 templates HTML (A–F: Editorial, Guia, Dashboard, Contraste, Prova Social, Checklist) | S1–2 | Gustavo |
 | ✅ | Criar press release de lançamento + email HTML de lançamento (3 subject lines A/B, cards dos 2 planos com preços) | S2 | Gustavo |
 | ✅ | Posts 01–02: carrossel reflexão B2B (3 slides) + post de lançamento Urban AI (squad run 06/04) | S2 | Gustavo |
